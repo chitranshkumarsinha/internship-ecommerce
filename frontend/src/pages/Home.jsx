@@ -1,0 +1,7 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+export default function Home() { const [products, setProducts] = useState([]); const { user, logout } = useAuth(); const navigate = useNavigate(); useEffect(() => { axios.get('/api/products').then(res => setProducts(res.data)); }, []);
+const handleBuy = async (product) => { if(!user) return navigate('/login'); await axios.post('/api/orders', { products: [{ productId: product._id, qty: 1 }], totalAmount: product.price }); alert('Order placed!'); };
+return (<div><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}><div>{user ? <span>Welcome, {user.name} ({user.role})</span> : <span>Please Login</span>}</div><div>{user && <button onClick={() => navigate(user.role === 'Vendor' ? '/vendor' : '/customer')}>Dashboard</button>}{user && <button onClick={logout} style={{marginLeft: '10px'}}>Logout</button>}</div></div><h2>Products</h2><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>{products.map(p => (<div key={p._id} style={{ border: '1px solid #ccc', padding: '10px' }}><h3>{p.name}</h3><p>{p.description}</p><p><strong>${p.price}</strong> <small>by {p.vendorId?.name}</small></p><button onClick={() => handleBuy(p)}>Buy Now</button></div>))}</div></div>); }

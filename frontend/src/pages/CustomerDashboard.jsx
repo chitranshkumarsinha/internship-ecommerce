@@ -1,0 +1,5 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+export default function CustomerDashboard() { const [orders, setOrders] = useState([]); const { user } = useAuth(); useEffect(() => { axios.get('/api/orders/my-orders').then(res => setOrders(res.data)); }, []);
+return (<div><h2>My Orders</h2>{orders.length === 0 ? <p>You haven't bought anything yet.</p> : orders.map(o => (<div key={o._id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}><p><strong>Order ID:</strong> {o._id.slice(-5)} | <strong>Total:</strong> ${o.totalAmount} | <strong>Status:</strong> {o.status}</p><ul>{o.products.map((p, i) => <li key={i}>{p.productId?.name || 'Deleted Product'} (Qty: {p.qty})</li>)}</ul></div>))}</div>); }
